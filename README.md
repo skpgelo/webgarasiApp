@@ -238,7 +238,8 @@ Ya, perlakuannya sama persis. Modul ESP-12E adalah chip inti (core module) yang 
 Namun, jika Anda beralih dari menggunakan board NodeMCU siap pakai ke chip ESP-12E "barebone" (kepingan logam hitam/perak polos), ada perbedaan besar dalam hal cara merakit rangkaian dasarnya. [1]
 Berikut adalah hal-masing penyesuaian yang wajib Anda lakukan jika menggunakan chip ESP-12E polos:
 1. Skema Penamaan Pin (Gunakan GPIO, Bukan Kode "D")
-Pada board NodeMCU, pin diberi label kosmetik seperti D0, D1, D2. Jika Anda menggunakan chip ESP-12E polos, label tersebut tidak ada. Anda harus menghubungkannya langsung berdasarkan nomor GPIO aslinya di program Arduino IDE: [1, 2, 3, 4]
+Pada board NodeMCU, pin diberi label kosmetik seperti D0, D1, D2. Jika Anda menggunakan chip ESP-12E polos, label tersebut tidak ada. Anda harus menghubungkannya langsung berdasarkan nomor GPIO aslinya di program Arduino IDE:
+
 Switch 1 → GPIO5 (setara D1)
 Switch 2 → GPIO4 (setara D2)
 Switch 3 → GPIO0 (setara D3)
@@ -250,8 +251,9 @@ Relay 2 → GPIO13 (setara D7)
 Relay 3 → GPIO15 (setara D8)
 Relay 4 → GPIO3 (setara RX) [1, 2]
 
-2. Wajib Merakit "Minimal Circuit" Agar Chip Bisa Menyala
-Board NodeMCU bisa langsung menyala karena sudah memiliki resistor internal di bawahnya. Jika menggunakan chip ESP-12E polos, chip tersebut tidak akan mau menyala atau tidak bisa di-flash jika pin-pin konfigurasi boot ini dibiarkan kosong (mengambang). [1, 2]
+3. Wajib Merakit "Minimal Circuit" Agar Chip Bisa Menyala
+Board NodeMCU bisa langsung menyala karena sudah memiliki resistor internal di bawahnya. Jika menggunakan chip ESP-12E polos, chip tersebut tidak akan mau menyala atau tidak bisa di-flash jika pin-pin konfigurasi boot ini dibiarkan kosong (mengambang).
+
 Anda wajib menambahkan resistor manual (biasanya ukuran 10k Ohm) pada pin-pin kontrol berikut: [1, 2]
 Pin CH_PD / EN (Chip Enable) → Wajib diberi Resistor 10k ke 3.3V (VCC) agar chip aktif.
 Pin REST / RST (Reset) → Wajib diberi Resistor 10k ke 3.3V (VCC) agar tidak mereset sendiri.
@@ -259,28 +261,34 @@ Pin GPIO15 → Wajib diberi Resistor 10k langsung ke GND (Ground).
 Pin GPIO2 → Wajib diberi Resistor 10k ke 3.3V (VCC).
 Pin GPIO0 → Dihubungkan ke 3.3V melalui resistor 10k untuk mode menyala normal. [1, 2, 3, 4]
 
-3. Cara Flashing / Upload Program
+5. Cara Flashing / Upload Program
 Karena ESP-12E polos tidak memiliki colokan Micro USB, Anda memerlukan modul tambahan bernama USB-to-TTL Serial Adapter (seperti FTDI, CP2102, atau CH340) untuk memasukkan kode program dari komputer. [1, 2]
 Hubungannya kabel untuk upload:
+
 TX Modul USB-TTL ──> RX (GPIO3) ESP-12E
 RX Modul USB-TTL ──> TX (GPIO1) ESP-12E
-GND Modul USB-TTL ──> GND ESP-12E [1, 2]
+GND Modul USB-TTL ──> GND ESP-12E
+
 Prosedur Masuk Mode Upload (Flash Mode):
 Hubungkan GPIO0 langsung ke GND.
 Matikan dan nyalakan ulang tegangan ESP-12E (atau hubungkan pin RST ke GND sebentar lalu lepas).
 Klik tombol Upload di Arduino IDE.
-Setelah tulisan Done Uploading, lepas kabel GPIO0 dari GND agar program bisa berjalan secara permanen. [1, 2, 3, 4, 5]
+Setelah tulisan Done Uploading, lepas kabel GPIO0 dari GND agar program bisa berjalan secara permanen. 
+
 Kesimpulan
-Semua perilaku software, interlock database, kendala bentrokan data di pin RX/TX, dan proteksi limit switch sama persis. Perbedaannya murni pada kebutuhan perakitan fisik elektronika dasar (resistor pull-up/pull-down eksternal pada pin-pin wajib) untuk menghidupkan chip tersebut. [1, 2]
+Semua perilaku software, interlock database, kendala bentrokan data di pin RX/TX, dan proteksi limit switch sama persis. Perbedaannya murni pada kebutuhan perakitan fisik elektronika dasar (resistor pull-up/pull-down eksternal pada pin-pin wajib) untuk menghidupkan chip tersebut. 
+
 Jika Anda berencana menggunakan ESP-12E barebone polos ini, let me know:
 Apakah Anda sudah memiliki modul USB-to-TTL Adapter untuk keperluan upload program nanti?
-Apakah Anda memerlukan gambar panduan rangkaian tombol manual (Flash & Reset)pada ESP-12E agar proses upload program menjadi lebih praktis? [1]
+Apakah Anda memerlukan gambar panduan rangkaian tombol manual (Flash & Reset)pada ESP-12E agar proses upload program menjadi lebih praktis?
+
 sudah memiliki modul USB-to-TTL Adapter FTDI keperluan upload program
 Bagus sekali, menggunakan modul USB-to-TTL FTDI Adapter adalah pilihan terbaik karena modul ini sangat stabil untuk melakukan flashing pada chip ESP-12E polos.
 Untuk mempermudah proses pemrograman tanpa perlu bongkar-pasang kabel, kita akan membuat rangkaian Sirkuit Flash & Reset Minimalis. Dengan sirkuit ini, Anda cukup menekan kombinasi dua tombol tombol saat ingin melakukan upload program dari Arduino IDE.
 
 1. Skema Pengabelan FTDI ke ESP-12E (Saat Upload)
 Hubungkan pin-pin dari modul FTDI Anda ke chip ESP-12E dengan susunan berikut:
+
 Pin Modul FTDI
 Terhubung ke Pin ESP-12E
 Catatan Penting
@@ -297,14 +305,14 @@ TX
 RXD0 (GPIO3)
 Jalur penerimaan firmware baru dari PC ke ESP
 
-
-2. Rangkaian Tombol "Flash" & "Reset" Manual (Sangat Direkomendasikan)
+3. Rangkaian Tombol "Flash" & "Reset" Manual (Sangat Direkomendasikan)
 Agar chip ESP-12E bisa menerima program baru, chip harus dipaksa masuk ke Bootloader Mode / Flash Mode sesaat sebelum tombol Upload di Arduino IDE ditekan.
 Siapkan 2 buah tombol push button kecil (tactile switch) dan pasang dengan skema berikut:
+
 Tombol RESET: Sambungkan satu kaki tombol ke pin RST (Reset) ESP-12E, dan kaki satunya lagi langsung ke GND.
 Tombol FLASH: Sambungkan satu kaki tombol ke pin GPIO0 ESP-12E, dan kaki satunya lagi langsung ke GND.
 
-3. Langkah Praktis Melakukan Upload Program
+5. Langkah Praktis Melakukan Upload Program
 Setelah semua kabel kontrol dasar ESP-12E (CH_PD ke 3.3V, GPIO15 ke GND, dan GPIO2 ke 3.3V menggunakan resistor 10k) serta kabel modul FTDI terpasang, ikuti urutan menekan tombol ini untuk melakukan upload:
 Masuk Mode Flash:
 Tekan dan tahan tombol FLASH.
@@ -326,11 +334,11 @@ Apakah Anda sudah menambahkan URL Board Manager ESP8266 di pengaturan Arduino ID
 Apakah Anda membutuhkan bantuan untuk struktur setup awal di Arduino IDE (seperti memilih tipe board yang pas untuk ESP-12E)?
 membutuhkan bantuan untuk struktur setup awal di Arduino IDE
 
-11 situs
 Berikut adalah panduan lengkap langkah demi langkah untuk melakukan setup awal di Arduino IDE agar komputer Anda mengenali chip ESP-12E dan siap melakukan flashing program IoT Firebase.
 
 Langkah 1: Memasang URL Board Manager ESP8266
-Secara bawaan, Arduino IDE hanya mengenali papan Arduino (seperti Uno atau Nano). Kita harus menambahkan pustaka inti ESP8266 terlebih dahulu. [1, 2]
+Secara bawaan, Arduino IDE hanya mengenali papan Arduino (seperti Uno atau Nano). Kita harus menambahkan pustaka inti ESP8266 terlebih dahulu. 
+
 Buka aplikasi Arduino IDE di komputer Anda.
 Masuk ke menu File > Preferences (atau Arduino IDE > Settings jika menggunakan Mac).
 Cari kolom bernama Additional Boards Manager URLs.
@@ -339,7 +347,7 @@ text
 http://esp8266.com
 Gunakan kode dengan hati-hati.
 (Jika sudah ada URL lain di sana, berikan tanda koma , di ujungnya sebelum menempelkan URL baru ini).
-Klik OK. [1, 2]
+Klik OK. 
 
 Langkah 2: Mengunduh Core Board ESP8266
 Masuk ke menu Tools > Board > Boards Manager... (atau klik ikon papan sirkuit di bilah menu kiri).
@@ -350,7 +358,8 @@ Klik tombol Install dan tunggu hingga proses unduhan selesai 100% (pastikan komp
 Langkah 3: Pengaturan Board & Parameter untuk ESP-12E Barebone
 Karena Anda menggunakan chip ESP-12E polos (barebone) melalui FTDI, bukan board NodeMCU siap pakai, pemilihan tipe papan harus disesuaikan agar alokasi memorinya pas.
 Masuk ke menu Tools dan atur parameternya persis seperti panduan di bawah ini:
-Board: Pilih Generic ESP8266 Module
+Board: 
+Pilih Generic ESP8266 Module
 Flash Mode: Pilih DIO atau QIO (Jika ragu, pilih DIO karena paling aman untuk semua varian ESP-12E)
 Flash Size: Pilih 4MB (FS:2MB OTA:~1019KB) (Ini adalah kapasitas memori standar chip ESP-12E asli)
 CPU Frequency: Pilih 80 MHz
@@ -362,10 +371,11 @@ Program Anda membutuhkan library pihak ketiga untuk berkomunikasi dengan Firebas
 Masuk ke menu Sketch > Include Library > Manage Libraries...
 Pada kolom pencarian, ketik Firebase ESP8266.
 Cari library buatan Mobizt yang bernama Firebase ESP8266 Client.
-Klik Install. Jika muncul jendela pop-up meminta persetujuan untuk menginstal library pendukung lainnya (dependencies), klik Install All. [1, 2, 3]
+Klik Install. Jika muncul jendela pop-up meminta persetujuan untuk menginstal library pendukung lainnya (dependencies), klik Install All.
 
 🚀 Sekarang Anda Siap Melakukan Upload!
-Setelah semua langkah di atas selesai, masukkan kode program ESP8266 yang sudah kita bahas sebelumnya ke dalam lembar kerja Arduino IDE. Jangan lupa untuk mengisi nama Wi-Fi, Password, dan Kredensial Firebase Anda di bagian atas kode. [1]
+Setelah semua langkah di atas selesai, masukkan kode program ESP8266 yang sudah kita bahas sebelumnya ke dalam lembar kerja Arduino IDE. Jangan lupa untuk mengisi nama Wi-Fi, Password, dan Kredensial Firebase Anda di bagian atas kode. 
+
 Sebelum menekan tombol Upload (tanda panah kanan), jalankan ritual kombinasi tombol fisik pada sirkuit ESP-12E Anda terlebih dahulu agar chip masuk ke mode flash:
 Tekan dan tahan tombol FLASH.
 Klik tombol RESET satu kali, lalu lepas.
@@ -378,12 +388,13 @@ Board Manager
 ESP8266)?
 apakah sama perlakuannya jika menggunakan microcontroller esp 12e?
 
-11 situs
-Ya, perlakuannya sama persis. Modul ESP-12E adalah chip inti (core module) yang digunakan di dalam board NodeMCU. Jadi, semua sifat hardware, batas kemampuan pin, logika program, dan kendala serial RX/TX yang dibahas sebelumnya berasal dari chip ESP-12E ini. [1, 2, 3, 4]
+Ya, perlakuannya sama persis. Modul ESP-12E adalah chip inti (core module) yang digunakan di dalam board NodeMCU. Jadi, semua sifat hardware, batas kemampuan pin, logika program, dan kendala serial RX/TX yang dibahas sebelumnya berasal dari chip ESP-12E ini. 
+
 Namun, jika Anda beralih dari menggunakan board NodeMCU siap pakai ke chip ESP-12E "barebone" (kepingan logam hitam/perak polos), ada perbedaan besar dalam hal cara merakit rangkaian dasarnya. [1]
 Berikut adalah hal-masing penyesuaian yang wajib Anda lakukan jika menggunakan chip ESP-12E polos:
 1. Skema Penamaan Pin (Gunakan GPIO, Bukan Kode "D")
-Pada board NodeMCU, pin diberi label kosmetik seperti D0, D1, D2. Jika Anda menggunakan chip ESP-12E polos, label tersebut tidak ada. Anda harus menghubungkannya langsung berdasarkan nomor GPIO aslinya di program Arduino IDE: [1, 2, 3, 4]
+Pada board NodeMCU, pin diberi label kosmetik seperti D0, D1, D2. Jika Anda menggunakan chip ESP-12E polos, label tersebut tidak ada. Anda harus menghubungkannya langsung berdasarkan nomor GPIO aslinya di program Arduino IDE: 
+
 Switch 1 → GPIO5 (setara D1)
 Switch 2 → GPIO4 (setara D2)
 Switch 3 → GPIO0 (setara D3)
@@ -396,16 +407,19 @@ Relay 3 → GPIO15 (setara D8)
 Relay 4 → GPIO3 (setara RX) [1, 2]
 
 2. Wajib Merakit "Minimal Circuit" Agar Chip Bisa Menyala
-Board NodeMCU bisa langsung menyala karena sudah memiliki resistor internal di bawahnya. Jika menggunakan chip ESP-12E polos, chip tersebut tidak akan mau menyala atau tidak bisa di-flash jika pin-pin konfigurasi boot ini dibiarkan kosong (mengambang). [1, 2]
-Anda wajib menambahkan resistor manual (biasanya ukuran 10k Ohm) pada pin-pin kontrol berikut: [1, 2]
+Board NodeMCU bisa langsung menyala karena sudah memiliki resistor internal di bawahnya. Jika menggunakan chip ESP-12E polos, chip tersebut tidak akan mau menyala atau tidak bisa di-flash jika pin-pin konfigurasi boot ini dibiarkan kosong (mengambang). 
+
+Anda wajib menambahkan resistor manual (biasanya ukuran 10k Ohm) pada pin-pin kontrol berikut: 
+
 Pin CH_PD / EN (Chip Enable) → Wajib diberi Resistor 10k ke 3.3V (VCC) agar chip aktif.
 Pin REST / RST (Reset) → Wajib diberi Resistor 10k ke 3.3V (VCC) agar tidak mereset sendiri.
 Pin GPIO15 → Wajib diberi Resistor 10k langsung ke GND (Ground).
 Pin GPIO2 → Wajib diberi Resistor 10k ke 3.3V (VCC).
-Pin GPIO0 → Dihubungkan ke 3.3V melalui resistor 10k untuk mode menyala normal. [1, 2, 3, 4]
+Pin GPIO0 → Dihubungkan ke 3.3V melalui resistor 10k untuk mode menyala normal.
 
 3. Cara Flashing / Upload Program
-Karena ESP-12E polos tidak memiliki colokan Micro USB, Anda memerlukan modul tambahan bernama USB-to-TTL Serial Adapter (seperti FTDI, CP2102, atau CH340) untuk memasukkan kode program dari komputer. [1, 2]
+Karena ESP-12E polos tidak memiliki colokan Micro USB, Anda memerlukan modul tambahan bernama USB-to-TTL Serial Adapter (seperti FTDI, CP2102, atau CH340) untuk memasukkan kode program dari komputer.
+
 Hubungannya kabel untuk upload:
 TX Modul USB-TTL ──> RX (GPIO3) ESP-12E
 RX Modul USB-TTL ──> TX (GPIO1) ESP-12E
@@ -414,12 +428,14 @@ Prosedur Masuk Mode Upload (Flash Mode):
 Hubungkan GPIO0 langsung ke GND.
 Matikan dan nyalakan ulang tegangan ESP-12E (atau hubungkan pin RST ke GND sebentar lalu lepas).
 Klik tombol Upload di Arduino IDE.
-Setelah tulisan Done Uploading, lepas kabel GPIO0 dari GND agar program bisa berjalan secara permanen. [1, 2, 3, 4, 5]
+Setelah tulisan Done Uploading, lepas kabel GPIO0 dari GND agar program bisa berjalan secara permanen.
+
 Kesimpulan
 Semua perilaku software, interlock database, kendala bentrokan data di pin RX/TX, dan proteksi limit switch sama persis. Perbedaannya murni pada kebutuhan perakitan fisik elektronika dasar (resistor pull-up/pull-down eksternal pada pin-pin wajib) untuk menghidupkan chip tersebut. [1, 2]
 Jika Anda berencana menggunakan ESP-12E barebone polos ini, let me know:
 Apakah Anda sudah memiliki modul USB-to-TTL Adapter untuk keperluan upload program nanti?
-Apakah Anda memerlukan gambar panduan rangkaian tombol manual (Flash & Reset)pada ESP-12E agar proses upload program menjadi lebih praktis? [1]
+Apakah Anda memerlukan gambar panduan rangkaian tombol manual (Flash & Reset)pada ESP-12E agar proses upload program menjadi lebih praktis?
+
 sudah memiliki modul USB-to-TTL Adapter FTDI keperluan upload program
 Bagus sekali, menggunakan modul USB-to-TTL FTDI Adapter adalah pilihan terbaik karena modul ini sangat stabil untuk melakukan flashing pada chip ESP-12E polos.
 Untuk mempermudah proses pemrograman tanpa perlu bongkar-pasang kabel, kita akan membuat rangkaian Sirkuit Flash & Reset Minimalis. Dengan sirkuit ini, Anda cukup menekan kombinasi dua tombol tombol saat ingin melakukan upload program dari Arduino IDE.
@@ -441,7 +457,6 @@ Jalur pengiriman data log dari ESP ke PC
 TX
 RXD0 (GPIO3)
 Jalur penerimaan firmware baru dari PC ke ESP
-
 
 2. Rangkaian Tombol "Flash" & "Reset" Manual (Sangat Direkomendasikan)
 Agar chip ESP-12E bisa menerima program baru, chip harus dipaksa masuk ke Bootloader Mode / Flash Mode sesaat sebelum tombol Upload di Arduino IDE ditekan.
@@ -475,7 +490,8 @@ membutuhkan bantuan untuk struktur setup awal di Arduino IDE
 Berikut adalah panduan lengkap langkah demi langkah untuk melakukan setup awal di Arduino IDE agar komputer Anda mengenali chip ESP-12E dan siap melakukan flashing program IoT Firebase.
 
 Langkah 1: Memasang URL Board Manager ESP8266
-Secara bawaan, Arduino IDE hanya mengenali papan Arduino (seperti Uno atau Nano). Kita harus menambahkan pustaka inti ESP8266 terlebih dahulu. [1, 2]
+Secara bawaan, Arduino IDE hanya mengenali papan Arduino (seperti Uno atau Nano). Kita harus menambahkan pustaka inti ESP8266 terlebih dahulu.
+
 Buka aplikasi Arduino IDE di komputer Anda.
 Masuk ke menu File > Preferences (atau Arduino IDE > Settings jika menggunakan Mac).
 Cari kolom bernama Additional Boards Manager URLs.
@@ -484,7 +500,7 @@ text
 http://esp8266.com
 Gunakan kode dengan hati-hati.
 (Jika sudah ada URL lain di sana, berikan tanda koma , di ujungnya sebelum menempelkan URL baru ini).
-Klik OK. [1, 2]
+Klik OK. 
 
 Langkah 2: Mengunduh Core Board ESP8266
 Masuk ke menu Tools > Board > Boards Manager... (atau klik ikon papan sirkuit di bilah menu kiri).
@@ -500,14 +516,14 @@ Flash Mode: Pilih DIO atau QIO (Jika ragu, pilih DIO karena paling aman untuk se
 Flash Size: Pilih 4MB (FS:2MB OTA:~1019KB) (Ini adalah kapasitas memori standar chip ESP-12E asli)
 CPU Frequency: Pilih 80 MHz
 Upload Speed: Pilih 115200 (Kecepatan ini paling stabil untuk adaptor FTDI manual)
-Port: Pilih nomor Port COM tempat modul FTDI Anda terpasang (Misal: COM3, COM4, dst. Anda bisa mengeceknya di Device Manager windows). [1, 2]
+Port: Pilih nomor Port COM tempat modul FTDI Anda terpasang (Misal: COM3, COM4, dst. Anda bisa mengeceknya di Device Manager windows).
 
 Langkah 4: Memasang Library Firebase
 Program Anda membutuhkan library pihak ketiga untuk berkomunikasi dengan Firebase Realtime Database.
 Masuk ke menu Sketch > Include Library > Manage Libraries...
 Pada kolom pencarian, ketik Firebase ESP8266.
 Cari library buatan Mobizt yang bernama Firebase ESP8266 Client.
-Klik Install. Jika muncul jendela pop-up meminta persetujuan untuk menginstal library pendukung lainnya (dependencies), klik Install All. [1, 2, 3]
+Klik Install. Jika muncul jendela pop-up meminta persetujuan untuk menginstal library pendukung lainnya (dependencies), klik Install All. 
 
 🚀 Sekarang Anda Siap Melakukan Upload!
 Setelah semua langkah di atas selesai, masukkan kode program ESP8266 yang sudah kita bahas sebelumnya ke dalam lembar kerja Arduino IDE. Jangan lupa untuk mengisi nama Wi-Fi, Password, dan Kredensial Firebase Anda di bagian atas kode. [1]
@@ -515,7 +531,8 @@ Sebelum menekan tombol Upload (tanda panah kanan), jalankan ritual kombinasi tom
 Tekan dan tahan tombol FLASH.
 Klik tombol RESET satu kali, lalu lepas.
 Lepas tombol FLASH.
-Klik tombol Upload di Arduino IDE. [1]
+Klik tombol Upload di Arduino IDE. 
+
 Jika Anda ingin melanjutkan ke tahap eksekusi, let me know:
 Apakah Anda membutuhkan bantuan untuk mencari Database Secret dan Project ID di Firebase Console untuk dimasukkan ke kode program?
 Apakah Anda ingin memastikan cara cek nomor Port COM FTDI di Device Manager jika nomor portnya tidak muncul di Arduino IDE?
@@ -523,11 +540,14 @@ ESP8266)?
 apakah sama perlakuannya jika menggunakan microcontroller esp 12e?
 
 11 situs
-Ya, perlakuannya sama persis. Modul ESP-12E adalah chip inti (core module) yang digunakan di dalam board NodeMCU. Jadi, semua sifat hardware, batas kemampuan pin, logika program, dan kendala serial RX/TX yang dibahas sebelumnya berasal dari chip ESP-12E ini. [1, 2, 3, 4]
-Namun, jika Anda beralih dari menggunakan board NodeMCU siap pakai ke chip ESP-12E "barebone" (kepingan logam hitam/perak polos), ada perbedaan besar dalam hal cara merakit rangkaian dasarnya. [1]
+Ya, perlakuannya sama persis. Modul ESP-12E adalah chip inti (core module) yang digunakan di dalam board NodeMCU. Jadi, semua sifat hardware, batas kemampuan pin, logika program, dan kendala serial RX/TX yang dibahas sebelumnya berasal dari chip ESP-12E ini. 
+
+Namun, jika Anda beralih dari menggunakan board NodeMCU siap pakai ke chip ESP-12E "barebone" (kepingan logam hitam/perak polos), ada perbedaan besar dalam hal cara merakit rangkaian dasarnya. 
+
 Berikut adalah hal-masing penyesuaian yang wajib Anda lakukan jika menggunakan chip ESP-12E polos:
 1. Skema Penamaan Pin (Gunakan GPIO, Bukan Kode "D")
-Pada board NodeMCU, pin diberi label kosmetik seperti D0, D1, D2. Jika Anda menggunakan chip ESP-12E polos, label tersebut tidak ada. Anda harus menghubungkannya langsung berdasarkan nomor GPIO aslinya di program Arduino IDE: [1, 2, 3, 4]
+Pada board NodeMCU, pin diberi label kosmetik seperti D0, D1, D2. Jika Anda menggunakan chip ESP-12E polos, label tersebut tidak ada. Anda harus menghubungkannya langsung berdasarkan nomor GPIO aslinya di program Arduino IDE: 
+
 Switch 1 → GPIO5 (setara D1)
 Switch 2 → GPIO4 (setara D2)
 Switch 3 → GPIO0 (setara D3)
@@ -540,16 +560,18 @@ Relay 3 → GPIO15 (setara D8)
 Relay 4 → GPIO3 (setara RX) [1, 2]
 
 2. Wajib Merakit "Minimal Circuit" Agar Chip Bisa Menyala
-Board NodeMCU bisa langsung menyala karena sudah memiliki resistor internal di bawahnya. Jika menggunakan chip ESP-12E polos, chip tersebut tidak akan mau menyala atau tidak bisa di-flash jika pin-pin konfigurasi boot ini dibiarkan kosong (mengambang). [1, 2]
+Board NodeMCU bisa langsung menyala karena sudah memiliki resistor internal di bawahnya. Jika menggunakan chip ESP-12E polos, chip tersebut tidak akan mau menyala atau tidak bisa di-flash jika pin-pin konfigurasi boot ini dibiarkan kosong (mengambang). 
+
 Anda wajib menambahkan resistor manual (biasanya ukuran 10k Ohm) pada pin-pin kontrol berikut: [1, 2]
 Pin CH_PD / EN (Chip Enable) → Wajib diberi Resistor 10k ke 3.3V (VCC) agar chip aktif.
 Pin REST / RST (Reset) → Wajib diberi Resistor 10k ke 3.3V (VCC) agar tidak mereset sendiri.
 Pin GPIO15 → Wajib diberi Resistor 10k langsung ke GND (Ground).
 Pin GPIO2 → Wajib diberi Resistor 10k ke 3.3V (VCC).
-Pin GPIO0 → Dihubungkan ke 3.3V melalui resistor 10k untuk mode menyala normal. [1, 2, 3, 4]
+Pin GPIO0 → Dihubungkan ke 3.3V melalui resistor 10k untuk mode menyala normal. 
 
 3. Cara Flashing / Upload Program
-Karena ESP-12E polos tidak memiliki colokan Micro USB, Anda memerlukan modul tambahan bernama USB-to-TTL Serial Adapter (seperti FTDI, CP2102, atau CH340) untuk memasukkan kode program dari komputer. [1, 2]
+Karena ESP-12E polos tidak memiliki colokan Micro USB, Anda memerlukan modul tambahan bernama USB-to-TTL Serial Adapter (seperti FTDI, CP2102, atau CH340) untuk memasukkan kode program dari komputer. 
+
 Hubungannya kabel untuk upload:
 TX Modul USB-TTL ──> RX (GPIO3) ESP-12E
 RX Modul USB-TTL ──> TX (GPIO1) ESP-12E
@@ -558,12 +580,15 @@ Prosedur Masuk Mode Upload (Flash Mode):
 Hubungkan GPIO0 langsung ke GND.
 Matikan dan nyalakan ulang tegangan ESP-12E (atau hubungkan pin RST ke GND sebentar lalu lepas).
 Klik tombol Upload di Arduino IDE.
-Setelah tulisan Done Uploading, lepas kabel GPIO0 dari GND agar program bisa berjalan secara permanen. [1, 2, 3, 4, 5]
+Setelah tulisan Done Uploading, lepas kabel GPIO0 dari GND agar program bisa berjalan secara permanen. 
+
 Kesimpulan
-Semua perilaku software, interlock database, kendala bentrokan data di pin RX/TX, dan proteksi limit switch sama persis. Perbedaannya murni pada kebutuhan perakitan fisik elektronika dasar (resistor pull-up/pull-down eksternal pada pin-pin wajib) untuk menghidupkan chip tersebut. [1, 2]
+Semua perilaku software, interlock database, kendala bentrokan data di pin RX/TX, dan proteksi limit switch sama persis. Perbedaannya murni pada kebutuhan perakitan fisik elektronika dasar (resistor pull-up/pull-down eksternal pada pin-pin wajib) untuk menghidupkan chip tersebut.
+
 Jika Anda berencana menggunakan ESP-12E barebone polos ini, let me know:
 Apakah Anda sudah memiliki modul USB-to-TTL Adapter untuk keperluan upload program nanti?
-Apakah Anda memerlukan gambar panduan rangkaian tombol manual (Flash & Reset)pada ESP-12E agar proses upload program menjadi lebih praktis? [1]
+Apakah Anda memerlukan gambar panduan rangkaian tombol manual (Flash & Reset)pada ESP-12E agar proses upload program menjadi lebih praktis? 
+
 sudah memiliki modul USB-to-TTL Adapter FTDI keperluan upload program
 Bagus sekali, menggunakan modul USB-to-TTL FTDI Adapter adalah pilihan terbaik karena modul ini sangat stabil untuk melakukan flashing pada chip ESP-12E polos.
 Untuk mempermudah proses pemrograman tanpa perlu bongkar-pasang kabel, kita akan membuat rangkaian Sirkuit Flash & Reset Minimalis. Dengan sirkuit ini, Anda cukup menekan kombinasi dua tombol tombol saat ingin melakukan upload program dari Arduino IDE.
@@ -585,7 +610,6 @@ Jalur pengiriman data log dari ESP ke PC
 TX
 RXD0 (GPIO3)
 Jalur penerimaan firmware baru dari PC ke ESP
-
 
 2. Rangkaian Tombol "Flash" & "Reset" Manual (Sangat Direkomendasikan)
 Agar chip ESP-12E bisa menerima program baru, chip harus dipaksa masuk ke Bootloader Mode / Flash Mode sesaat sebelum tombol Upload di Arduino IDE ditekan.
@@ -616,7 +640,8 @@ Apakah Anda membutuhkan bantuan untuk struktur setup awal di Arduino IDE (sepert
 Berikut adalah panduan lengkap langkah demi langkah untuk melakukan setup awal di Arduino IDE agar komputer Anda mengenali chip ESP-12E dan siap melakukan flashing program IoT Firebase.
 
 Langkah 1: Memasang URL Board Manager ESP8266
-Secara bawaan, Arduino IDE hanya mengenali papan Arduino (seperti Uno atau Nano). Kita harus menambahkan pustaka inti ESP8266 terlebih dahulu. [1, 2]
+Secara bawaan, Arduino IDE hanya mengenali papan Arduino (seperti Uno atau Nano). Kita harus menambahkan pustaka inti ESP8266 terlebih dahulu. 
+
 Buka aplikasi Arduino IDE di komputer Anda.
 Masuk ke menu File > Preferences (atau Arduino IDE > Settings jika menggunakan Mac).
 Cari kolom bernama Additional Boards Manager URLs.
@@ -625,7 +650,7 @@ text
 http://esp8266.com
 Gunakan kode dengan hati-hati.
 (Jika sudah ada URL lain di sana, berikan tanda koma , di ujungnya sebelum menempelkan URL baru ini).
-Klik OK. [1, 2]
+Klik OK. 
 
 Langkah 2: Mengunduh Core Board ESP8266
 Masuk ke menu Tools > Board > Boards Manager... (atau klik ikon papan sirkuit di bilah menu kiri).
@@ -641,14 +666,14 @@ Flash Mode: Pilih DIO atau QIO (Jika ragu, pilih DIO karena paling aman untuk se
 Flash Size: Pilih 4MB (FS:2MB OTA:~1019KB) (Ini adalah kapasitas memori standar chip ESP-12E asli)
 CPU Frequency: Pilih 80 MHz
 Upload Speed: Pilih 115200 (Kecepatan ini paling stabil untuk adaptor FTDI manual)
-Port: Pilih nomor Port COM tempat modul FTDI Anda terpasang (Misal: COM3, COM4, dst. Anda bisa mengeceknya di Device Manager windows). [1, 2]
+Port: Pilih nomor Port COM tempat modul FTDI Anda terpasang (Misal: COM3, COM4, dst. Anda bisa mengeceknya di Device Manager windows).
 
 Langkah 4: Memasang Library Firebase
 Program Anda membutuhkan library pihak ketiga untuk berkomunikasi dengan Firebase Realtime Database.
 Masuk ke menu Sketch > Include Library > Manage Libraries...
 Pada kolom pencarian, ketik Firebase ESP8266.
 Cari library buatan Mobizt yang bernama Firebase ESP8266 Client.
-Klik Install. Jika muncul jendela pop-up meminta persetujuan untuk menginstal library pendukung lainnya (dependencies), klik Install All. [1, 2, 3]
+Klik Install. Jika muncul jendela pop-up meminta persetujuan untuk menginstal library pendukung lainnya (dependencies), klik Install All. 
 
 🚀 Sekarang Anda Siap Melakukan Upload!
 Setelah semua langkah di atas selesai, masukkan kode program ESP8266 yang sudah kita bahas sebelumnya ke dalam lembar kerja Arduino IDE. Jangan lupa untuk mengisi nama Wi-Fi, Password, dan Kredensial Firebase Anda di bagian atas kode. [1]
@@ -656,14 +681,14 @@ Sebelum menekan tombol Upload (tanda panah kanan), jalankan ritual kombinasi tom
 Tekan dan tahan tombol FLASH.
 Klik tombol RESET satu kali, lalu lepas.
 Lepas tombol FLASH.
-Klik tombol Upload di Arduino IDE. [1]
+Klik tombol Upload di Arduino IDE.
+
 Jika Anda ingin melanjutkan ke tahap eksekusi, let me know:
 Apakah Anda membutuhkan bantuan untuk mencari Database Secret dan Project ID di Firebase Console untuk dimasukkan ke kode program?
 Apakah Anda ingin memastikan cara cek nomor Port COM FTDI di Device Manager jika nomor portnya tidak muncul di Arduino IDE?
 on?
 membutuhkan bantuan untuk mengonfigurasi credential Firebase pada script agar data web dashboard bisa langsung sinkron
 
-5 situs
 Berikut adalah panduan lengkap untuk mengambil kredensial (Credential) yang tepat dari Firebase Console dan memasukkannya ke dalam berkas script.js web dashboard serta kode ESP-12E Anda.
 
 Langkah 1: Mendapatkan Kredensial untuk Web Dashboard (script.js)
@@ -672,10 +697,12 @@ Buka Firebase Console dan masuk ke proyek Anda.
 Klik ikon roda gigi ⚙️ (Project settings) di menu samping kiri atas.
 Gulir ke bawah hingga Anda melihat bagian Your apps.
 Jika Anda belum membuat aplikasi web, klik ikon Web (</>), beri nama aplikasi Anda (misal: IoT Dashboard), lalu klik Register app.
-Setelah terdaftar, Firebase akan menampilkan blok kode objek firebaseConfig. Cari bagian tersebut dan salin nilai-nilainya. [1, 2]
+Setelah terdaftar, Firebase akan menampilkan blok kode objek firebaseConfig. Cari bagian tersebut dan salin nilai-nilainya. 
+
 Cara Memasukkannya ke script.js:
 Buka berkas script.js Anda dan ganti baris konfigurasi teratas dengan data yang baru saja Anda salin:
 javascript
+
 // ISI KREDENSIAL FIREBASE ANDA DI SINI
 const firebaseConfig = {
     apiKey: "AIzaSyA123456789...", // Ganti dengan apiKey Anda
@@ -687,14 +714,13 @@ const firebaseConfig = {
     appId: "1:1234567890:web:abcdef..."
 };
 
-Gunakan kode dengan hati-hati.
-
 Langkah 2: Mendapatkan Kredensial untuk Mikrokontroler ESP-12E
 Untuk kode program ESP-12E di Arduino IDE, library FirebaseESP8266 memerlukan dua hal khusus: FIREBASE_HOST dan FIREBASE_AUTH.
 A. Mengambil FIREBASE_HOST
 Di menu samping kiri Firebase Console, klik menu Build > Realtime Database.
 Lihat alamat URL yang ada di bagian atas tabel database Anda (berformat https://firebaseio.com).
-Salin alamat tersebut, tetapi buang teks https:// dan tanda garis miring / di bagian ujungnya. [1, 2]
+Salin alamat tersebut, tetapi buang teks https:// dan tanda garis miring / di bagian ujungnya.
+
 B. Mengambil FIREBASE_AUTH (Database Secret)
 Klik kembali ikon roda gigi ⚙️ (Project settings) di kiri atas.
 Masuk ke tab Service accounts.
@@ -712,12 +738,11 @@ cpp
  // Masukkan database secret rahasia hasil salinan tadi
 #define FIREBASE_AUTH "XyZ123abc456tOkEnRaHaSiAaNda..."
 
-Gunakan kode dengan hati-hati.
-
 ⚠️ Penting: Atur Security Rules Firebase Anda!
 Secara bawaan, Firebase Realtime Database mengunci akses data agar tidak bisa dibaca/ditulis dari luar sebelum diatur. Agar web dashboard (yang sudah menggunakan akun login) dan ESP-12E Anda bisa bertukar data dengan lancar, ubah aturan keamanannya:
 Masuk ke menu Realtime Database > klik tab Rules.
 Ubah kodenya menjadi seperti di bawah ini, lalu klik Publish:
+
 json
 {
   "rules": {
