@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Control Panel - Login</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: sans-serif; }
+        .card { border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: none; }
+        .toggle-btn { width: 100%; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; transition: 0.3s; }
+        .btn-off { background-color: #0d6efd; color: white; border: none; } /* Biru jika 0 */
+        .btn-on { background-color: #dc3545; color: white; border: none; }  /* Merah jika 1 */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- SECTION 1: FORM LOGIN -->
+<div id="loginSection" class="container py-5">
+    <div class="row justify-content-center pt-5">
+        <div class="col-md-4">
+            <div class="card p-4">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-dark">IoT Login</h3>
+                    <p class="text-muted small">Silakan masuk menggunakan akun dari Admin</p>
+                </div>
+                
+                <!-- Pesan Error/Gagal Login -->
+                <div id="loginError" class="alert alert-danger p-2 small hidden" role="alert"></div>
+
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label small fw-bold">Email Address</label>
+                        <input type="email" class="form-control" id="email" placeholder="nama@email.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label small fw-bold">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 py-2 fw-bold">Masuk ke Dashboard</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 2: WEB DASHBOARD (TERSEMBUNYI SEBELUM LOGIN) -->
+<div id="dashboardSection" class="container py-5 hidden">
+    <div class="row justify-content-center text-center mb-4">
+        <div class="col-md-6 position-relative">
+            <h2 class="fw-bold text-dark">IoT Relay Control Panel</h2>
+            <p class="text-muted">Real-time Firebase Database Synchronization</p>
+            <button class="btn btn-outline-danger btn-sm position-absolute top-0 end-0" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- R1 -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-4 text-center">
+                <h5>Relay 1 Status</h5>
+                <button id="btnR1" class="toggle-btn btn-off" onclick="toggleRelay('R1')">ON</button>
+            </div>
+        </div>
+        <!-- R2 -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-4 text-center">
+                <h5>Relay 2 Status</h5>
+                <button id="btnR2" class="toggle-btn btn-off" onclick="toggleRelay('R2')">ON</button>
+            </div>
+        </div>
+        <!-- R3 -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-4 text-center">
+                <h5>Relay 3 Status</h5>
+                <button id="btnR3" class="toggle-btn btn-off" onclick="toggleRelay('R3')">ON</button>
+            </div>
+        </div>
+        <!-- R4 -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-4 text-center">
+                <h5>Relay 4 Status</h5>
+                <button id="btnR4" class="toggle-btn btn-off" onclick="toggleRelay('R4')">ON</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK Legacy (v8 untuk stabilitas skrip CDN tunggal) -->
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+
+<script>
+    // MASUKKAN KREDENSIAL FIREBASE ANDA DI SINI
+    const firebaseConfig = {
+        apiKey: "API_KEY_ANDA",
+        authDomain: "PROJECT_://firebaseapp.com",
+        databaseURL: "https://PROJECT_://firebaseio.com",
+        projectId: "PROJECT_ID",
+        storageBucket: "PROJECT_://appspot.com",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
+    };
+    
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // Variabel Penampung State Relay
+    let currentStates = { R1: 0, R2: 0, R3: 0, R4: 0 };
+    let dbRefs = {};
+
+    // 1. MONITORING STATUS OTENTIKASI USER (Cek Apakah Sudah Login)
+    auth.onAuthStateChanged((user) => {
+        const loginSection = document.getElementById('loginSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+
+        if (user) {
+            // Jika User Sudah Login: Tampilkan Dashboard, Sembunyikan Form Login
+            loginSection.classList.add('hidden');
+            dashboardSection.classList.remove('hidden');
+            initFirebaseRealtime(); // Mulai membaca database
+        } else {
+            // Jika User Belum Login / Logout: Tampilkan Form Login, Sembunyikan Dashboard
+            loginSection.classList.remove('hidden');
+            dashboardSection.classList.add('hidden');
+            detachFirebaseRealtime(); // Putuskan pembacaan database demi keamanan
+        }
+    });
+
+    // 2. PROSES LOG IN
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('loginError');
+
+        errorDiv.classList.add('hidden');
+
+        auth.signInWithEmailAndPassword(email, password)
+            .catch((error) => {
+                errorDiv.classList.remove('hidden');
+                // Penerjemahan pesan error sederhana
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    errorDiv.innerText = "Email atau Password salah!";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorDiv.innerText = "Format email tidak valid.";
+                } else {
+                    errorDiv.innerText = error.message;
+                }
+            });
+    });
+
+    // 3. PROSES LOGOUT
+    function logout() {
+        auth.signOut();
+    }
+
+    // 4. MENYAMBUNGKAN REALTIME DATABASE (Hanya berjalan jika lolos login)
+    function initFirebaseRealtime() {
+        const relayPaths = ['R1', 'R2', 'R3', 'R4'];
+        relayPaths.forEach(relay => {
+            dbRefs[relay] = database.ref('/' + relay);
+            dbRefs[relay].on('value', (snapshot) => {
+                const val = snapshot.val() || 0;
+                currentStates[relay] = val;
+                updateButtonUI(relay, val);
+            });
+        });
+    }
+
+    // MEMUTUSKAN KONEKSI DATA SAAT LOGOUT
+    function detachFirebaseRealtime() {
+        const relayPaths = ['R1', 'R2', 'R3', 'R4'];
+        relayPaths.forEach(relay => {
+            if (dbRefs[relay]) {
+                dbRefs[relay].off();
+            }
+        });
+    }
+
+    // 5. UPDATE TAMPILAN TOMBOL DASHBOARD
+    function updateButtonUI(relay, val) {
+        const btn = document.getElementById('btn' + relay);
+        if (val === 1) {
+            btn.className = "toggle-btn btn-on";
+            btn.innerText = "OFF"; 
+        } else {
+            btn.className = "toggle-btn btn-off";
+            btn.innerText = "ON"; 
+        }
+    }
+
+    // 6. FUNGSI KLIK TOGGLE BUTTON KE FIREBASE
+    function toggleRelay(relay) {
+        let newValue = currentStates[relay] === 1 ? 0 : 1;
+        
+        // Logika Interlock R1 & R2
+        if (relay === 'R1' && newValue === 1) {
+            database.ref('/').update({ "R1": 1, "R2": 0 });
+        } else if (relay === 'R2' && newValue === 1) {
+            database.ref('/').update({ "R1": 0, "R2": 1 });
+        } else {
+            database.ref('/' + relay).set(newValue);
+        }
+    }
+</script>
+</body>
+</html>
