@@ -99,6 +99,7 @@ Ambil resistor 10k Ohm.
 Sambungkan salah satu kaki resistor ke Pin D0 (bisa diselipkan atau disolder bersama kabel dari Reed Switch tadi).
 Sambungkan kaki resistor satunya lagi langsung ke Pin GND (Ground) pada NodeMCU.
 Visualisasi Sederhana Jalurnya:
+
 text
 [ Pin 3.3V ] ───────> ( Reed Switch 5 ) ───────┬───────> [ Pin D0 ]
                                                │
