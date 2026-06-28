@@ -1,9 +1,10 @@
 Penggunaan INPUT_PULLDOWN pada semua switch (termasuk Limit Reed Switch pada Switch 5 dan 6) sebenarnya bertujuan untuk menyederhanakan desain kelistrikan agar cara kerja pembacaan logika di program ESP8266 tetap seragam, yaitu menggunakan prinsip Active High.
 Meskipun komponen fisik antara momentary push button (Switch 1–4) dan magnetic reed switch(Switch 5–6) berbeda bentuknya, keduanya adalah saklar mekanis dua pin yang memutus dan menghubungkan arus.
 Berikut adalah alasan detail dan analisis cara kerjanya:
+
 1. Mengapa Logika Program Dibuat Sama?
 Di dalam kode program ESP8266 sebelumnya, logika interupsi ditulis seperti ini:
-cpp
+
 if (currentStateSW5 == HIGH || currentStateSW6 == HIGH) { ... }
 
 Gunakan kode dengan hati-hati.
@@ -26,13 +27,12 @@ Saat saklar tertutup, pin akan langsung terhubung ke Ground sehingga terbaca LOW
 Jika kabel limit switch putus secara tidak sengaja, pin otomatis ditarik ke atas oleh Pull-up menjadi HIGH, sehingga sistem langsung mengunci mati demi keamanan (failsafe).
 Jika Anda ingin mengubah skema ke INPUT_PULLUP (Active Low), kodenya harus disesuaikan seperti ini:
 Di Bagian Setup:
-cpp
+
 pinMode(pinSW5, INPUT_PULLUP);
 pinMode(pinSW6, INPUT_PULLUP);
 
-Gunakan kode dengan hati-hati.
 Di Bagian Loop (Logikanya Dibalik menjadi LOW saat terpicu):
-cpp
+
 if (currentStateSW5 == LOW || currentStateSW6 == LOW) {
   if (statusR1 || statusR2) {
     statusR1 = false;
@@ -41,18 +41,17 @@ if (currentStateSW5 == LOW || currentStateSW6 == LOW) {
   }
 }
 
-Gunakan kode dengan hati-hati.
-
 Kesimpulan
 Penggunaan INPUT_PULLDOWN sebelumnya murni untuk menyamakan jalur kabel fisik (semua switch mengirim tegangan 3.3V saat aktif) dan menyamakan logika program (HIGH = Aktif).
 Jika Anda ingin melanjutkan perakitan alat, let me know:
 Apa tipe fisik fisik Reed Switch yang Anda gunakan saat ini? (Normally Open atau Normally Closed?)
 Apakah Anda membutuhkan gambar diagram skema sederhana untuk membedakan jalur kabel Pull-Down dan Pull-Up pada sensor limit tersebut?
+
 tipe fisik fisik Reed Switch yang digunakan Normally Open, tersambung jika magnet mendekat
 
-2 situs
 Karena Limit Reed Switch yang Anda gunakan adalah tipe Normally Open (NO) (tersambung jika magnet mendekat), maka konfigurasi INPUT_PULLDOWN dan logika program yang telah kita buat sebelumnya sudah 100% tepat dan benar. [1]
 Berikut adalah detail skema pengabelan dan visualisasi logikanya untuk memastikan perakitan Anda tidak keliru:
+
 ⚙️ Skema Kabel Fisik untuk Switch 5 & Switch 6 (Active High)
 Untuk tipe Normally Open (NO) dengan fitur INPUT_PULLDOWN, sambungkan kabel Anda dengan aturan berikut:
 Kaki 1 Reed Switch: Hubungkan langsung ke pin sumber tegangan 3.3V pada NodeMCU ESP8266.
