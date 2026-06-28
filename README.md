@@ -7,7 +7,6 @@ Di dalam kode program ESP8266 sebelumnya, logika interupsi ditulis seperti ini:
 
 if (currentStateSW5 == HIGH || currentStateSW6 == HIGH) { ... }
 
-Gunakan kode dengan hati-hati.
 Agar pin membaca logika HIGH saat Limit Switch dipicu/aktif, maka salah satu kaki Reed Switchharus dihubungkan ke tegangan 3.3V (VCC), dan kaki satunya masuk ke pin GPIO (D0/D5).
 Ketika Reed Switch tidak mendeteksi magnet (posisi renggang/terbuka), pin GPIO tidak terhubung ke mana-mana (mengambang/floating). Di sinilah fungsi INPUT_PULLDOWN bekerja, yaitu menggunakan resistor internal ESP8266 untuk menarik (pull down) tegangan bocor ke Ground, sehingga pin membaca nilai LOW yang stabil dan tidak memicu salah paham pada program.
 
