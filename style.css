@@ -1,0 +1,44 @@
+body { 
+    background-color: #f8f9fa; 
+    font-family: sans-serif; 
+}
+
+.card { 
+    border-radius: 15px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+    border: none; 
+}
+
+.toggle-btn { 
+    width: 100%; 
+    padding: 15px; 
+    font-size: 1.2rem; 
+    font-weight: bold; 
+    border-radius: 10px; 
+    transition: 0.3s; 
+}
+
+/* Warna Biru jika Data bernilai 0 (Menampilkan tulisan ON) */
+.btn-off { 
+    background-color: #0d6efd; 
+    color: white; 
+    border: none; 
+} 
+
+/* Warna Merah jika Data bernilai 1 (Menampilkan tulisan OFF) */
+.btn-on { 
+    background-color: #dc3545; 
+    color: white; 
+    border: none; 
+}  
+
+.hidden { 
+    display: none !important; 
+}
+
+.status-badge { 
+    font-size: 0.9rem; 
+    padding: 6px 12px; 
+    border-radius: 20px; 
+    font-weight: bold; 
+}
